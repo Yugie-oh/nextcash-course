@@ -16,8 +16,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from './ui/input';
+import { type Category } from '@/types/Categories';
 
-const transactionFormSchema = z.object({
+export const transactionFormSchema = z.object({
   transactionType: z.enum(["income", "expense"]),
   categoryId: z.coerce.number().positive("Please select a category"),
   transactionDate: z.coerce
@@ -28,9 +29,17 @@ const transactionFormSchema = z.object({
     .string()
     .min(3, "Description must contain at least 3 characters")
     .max(300, "Description must contain a maximum of 300 characters")
-})
+});
 
-export default function TransactionForm() {
+type Props = {
+  categories: Category[];
+  onSubmit: (data: z.infer<typeof transactionFormSchema>) => Promise<void>
+};
+
+export default function TransactionForm({
+  categories,
+  onSubmit
+}: Props) {
   const form = useForm<z.infer<typeof transactionFormSchema>>({
     resolver: zodResolver(transactionFormSchema),
     defaultValues: {
@@ -41,12 +50,11 @@ export default function TransactionForm() {
       transactionType: "income",
     }
   });
-  const handleSubmit = async (data: z.infer<typeof transactionFormSchema>) => {
-    console.log("data", data)
-  };
+  const transactionType = form.watch("transactionType");
+  const filteredCategories = categories.filter(category => category.type === transactionType)
   return <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <fieldset className="grid gap-y-5 gap-x-2 md:grid-cols-2">
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <fieldset disabled={form.formState.isSubmitting} className="grid gap-y-5 gap-x-2 md:grid-cols-2">
           <FormField control={form.control} name="transactionType" render={({ field }) => {
             return (
               <FormItem>
@@ -54,7 +62,11 @@ export default function TransactionForm() {
                   Transaction Type
                 </FormLabel>
                 <FormControl>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={(newValue) => {
+                    field.onChange(newValue);
+                    form.setValue("categoryId", 0);
+                  }}
+                  value={field.value}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -79,7 +91,13 @@ export default function TransactionForm() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent></SelectContent>
+                    <SelectContent>
+                      {filteredCategories.map(category => (
+                        <SelectItem key={category.id} value={category.id.toString()}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </FormControl>
                 <FormMessage />
@@ -127,7 +145,7 @@ export default function TransactionForm() {
             )
           }} />
         </fieldset>
-        <fieldset className="mt-5 flex flex-col gap-5">
+        <fieldset disabled={form.formState.isSubmitting} className="mt-5 flex flex-col gap-5">
           <FormField control={form.control} name="description" render={({ field }) => {
             return (
               <FormItem>

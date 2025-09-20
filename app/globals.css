@@ -119,3 +119,27 @@
     font-family: var(--font-poppins);
   }
 }
+
+[data-sonner-toast][data-type="error"] {
+  @apply !border-red-500 !bg-red-50 !text-red-500;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  @apply !text-red-500 !font-bold;
+}
+
+[data-sonner-toast][data-type="error"] [data-description] {
+  @apply !text-red-500;
+}
+
+[data-sonner-toast][data-type="success"] {
+  @apply !border-green-500 !bg-green-50 !text-green-500;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  @apply !text-green-500 !font-bold;
+}
+
+[data-sonner-toast][data-type="success"] [data-description] {
+  @apply !text-green-500;
+}
