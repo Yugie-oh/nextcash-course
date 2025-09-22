@@ -9,6 +9,8 @@ import Link from 'next/link';
 import z from 'zod';
 import numeral from 'numeral';
 import { Badge } from '@/components/ui/badge';
+import Filters from './filters';
+import { getTransactionYearsRange } from '@/data/getTransactionYearsRange';
 
 const today = new Date();
 
@@ -34,6 +36,7 @@ export default async function TransactionsPage({
   const { month, year } = searchSchema.parse(searchParamsValues);
   const selectedDate = new Date(year, month - 1, 1);
   const transactions = await getTransactionsByMonth({ month, year });
+  const yearsRange = await getTransactionYearsRange();
 
   return <div className="max-w-screen-xl mx-auto py-10">
     <Breadcrumb>
@@ -56,7 +59,7 @@ export default async function TransactionsPage({
         <CardTitle className="flex justify-between">
           <span>{format(selectedDate, "MMM yyyy")} Transactions</span>
           <div>
-            dropdowns
+            <Filters year={year} month={month} yearsRange={yearsRange} />
           </div>
         </CardTitle>
       </CardHeader>
