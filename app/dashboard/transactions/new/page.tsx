@@ -6,7 +6,7 @@ import NewTransactionForm from './new-transaction-form';
 
 export default async function NewTransactionPage(){
   const categories = await getCategories();
-  console.log("test",  {categories})
+
   return <div className="max-w-screen-xl mx-auto py-10">
     <Breadcrumb>
       <BreadcrumbList>
